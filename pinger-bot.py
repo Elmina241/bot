@@ -71,7 +71,7 @@ class Pinger():
             i += 1
         return time() - start_time
 
-    def start(self, bot):
+    def start(self):
         self.bot = bot
         self.is_running = True
         while self.is_running:
@@ -93,7 +93,6 @@ for line in handle:
 handle.close()
 
 pn = Pinger(1000, 2000, hosts, names)
-pn.start()
 
 class Bot():
 
@@ -112,11 +111,11 @@ class Bot():
     def send_message(self, message):
         bot.send_message(self.chat_id, text=message)
 
-    @bot.message_handler(commands=['start'])
+    @self.bot.message_handler(commands=['start'])
     def start_message(message):
         bot.send_message(message.chat.id, 'Привет, ты написал мне /start', reply_markup=keyboard1)
 
-    @bot.message_handler(content_types=['text'])
+    @self.bot.message_handler(content_types=['text'])
     def send_text(message):
         if message.text.lower() == 'запуск':
             pinger.start(self)
@@ -125,3 +124,13 @@ class Bot():
         elif message.text.lower() == 'статистика за сегодня':
             message = pinger.get_status()
             self.send_message(message)
+
+bot = Bot('842758704:AAE6j2c7CYqdK9P_lTf63Rn_FfLddrWw_R8',
+          '351515893',
+          {
+            'http': 'socks5://35.245.58.129:4444',
+            'https': 'socks5://35.245.58.129:4444'
+          },
+          pn)
+
+bot.bot.polling()
