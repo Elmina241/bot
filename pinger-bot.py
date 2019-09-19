@@ -13,6 +13,7 @@ class Pinger():
     is_running = False
     #Было ли оповещение об упавшем хосте, 0 - нет, 10 - оповещение о 10-ти минутах, 15 - о 15-ти
     is_notified = []
+    bot = None
 
 
     #timeout - время ожидания отклика от хоста
@@ -39,18 +40,11 @@ class Pinger():
 
     #Функция оповещения о неотвечающем хосте, id - id хоста в массиве hosts
     def notify(self, id, min):
-        bot = telebot.TeleBot('842758704:AAE6j2c7CYqdK9P_lTf63Rn_FfLddrWw_R8')
-        chat_id = '351515893'
-        apihelper.proxy = {
-            'http': 'socks5://35.245.58.129:4444',
-            'https': 'socks5://35.245.58.129:4444'
-        }
         if min == 0:
             message = 'Мониторинг ' + self.hosts[id] + ' восстановлен '
         else:
             message = 'Оборудование ' + self.names[id] + ' (' + self.hosts[id] + ') недоступно более ' + str(min) + ' минут.\nПриоритет: высокий'
-        bot.send_message(chat_id, text=message)
-        print(message)
+        self.bot.send_message(chat_id, text=message)
 
     #Функция проверки доступности хостов
     def run(self):
@@ -77,7 +71,8 @@ class Pinger():
             i += 1
         return time() - start_time
 
-    def start(self):
+    def start(self, bot):
+        self.bot = bot
         self.is_running = True
         while self.is_running:
             elapsed_time = self.run()
@@ -99,3 +94,34 @@ handle.close()
 
 pn = Pinger(1000, 2000, hosts, names)
 pn.start()
+
+class Bot():
+
+    bot = None
+    pinger = None
+
+    keyboard1 = telebot.types.ReplyKeyboardMarkup(True)
+
+    def __init__(self, token, chat_id, proxy, pinger):
+        self.bot = telebot.TeleBot(token)
+        self.chat_id = chat_id
+        self.pinger = pinger
+        apihelper.proxy = proxy
+        keyboard1.row('Запуск', 'Остановить', 'Статистика за сегодня')
+
+    def send_message(self, message):
+        bot.send_message(self.chat_id, text=message)
+
+    @bot.message_handler(commands=['start'])
+    def start_message(message):
+        bot.send_message(message.chat.id, 'Привет, ты написал мне /start', reply_markup=keyboard1)
+
+    @bot.message_handler(content_types=['text'])
+    def send_text(message):
+        if message.text.lower() == 'запуск':
+            pinger.start(self)
+        elif message.text.lower() == 'остановить':
+            pinger.stop()
+        elif message.text.lower() == 'статистика за сегодня':
+            message = pinger.get_status()
+            self.send_message(message)
