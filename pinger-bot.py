@@ -94,29 +94,28 @@ handle.close()
 
 pn = Pinger(1000, 2000, hosts, names)
 
-class Bot():
+class Bot(telebot.TeleBot):
 
-    bot = None
     pinger = None
 
     keyboard1 = telebot.types.ReplyKeyboardMarkup(True)
 
     def __init__(self, token, chat_id, proxy, pinger):
-        self.bot = telebot.TeleBot(token)
+        super().__init__(token)
         self.chat_id = chat_id
         self.pinger = pinger
         apihelper.proxy = proxy
         keyboard1.row('Запуск', 'Остановить', 'Статистика за сегодня')
 
     def send_message(self, message):
-        bot.send_message(self.chat_id, text=message)
+        self.send_message(self.chat_id, text=message)
 
-    @self.bot.message_handler(commands=['start'])
-    def start_message(message):
-        bot.send_message(message.chat.id, 'Привет, ты написал мне /start', reply_markup=keyboard1)
+    @telebot.TeleBot.message_handler(commands=['start'])
+    def start_message(self, message):
+        self.send_message(message.chat.id, 'Привет, ты написал мне /start', reply_markup=keyboard1)
 
-    @self.bot.message_handler(content_types=['text'])
-    def send_text(message):
+    @telebot.TeleBot.message_handler(content_types=['text'])
+    def send_text(self, message):
         if message.text.lower() == 'запуск':
             pinger.start(self)
         elif message.text.lower() == 'остановить':
@@ -133,4 +132,4 @@ bot = Bot('842758704:AAE6j2c7CYqdK9P_lTf63Rn_FfLddrWw_R8',
           },
           pn)
 
-bot.bot.polling()
+bot.polling()
