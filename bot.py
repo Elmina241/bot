@@ -120,12 +120,12 @@ apihelper.proxy = config.proxy
 
 bot = telebot.TeleBot(config.token)
 
-keyboard1 = telebot.types.ReplyKeyboardMarkup(True, one_time_keyboard = True)
+keyboard1 = telebot.types.ReplyKeyboardMarkup(True)
 keyboard1.row('Запуск', 'Статистика за сегодня')
 
 
 def send_message(message):
-    keyboard1 = telebot.types.ReplyKeyboardMarkup(True, one_time_keyboard=True)
+    keyboard1 = telebot.types.ReplyKeyboardMarkup(True)
     keyboard1.row('Остановить', 'Статистика за сегодня')
     bot.send_message(config.chat_id, text=message, reply_markup=keyboard1)
 
@@ -135,7 +135,7 @@ def start_message(message):
 
 @bot.message_handler(content_types=['text'])
 def send_text(message):
-    keyboard1 = telebot.types.ReplyKeyboardMarkup(True, one_time_keyboard=True)
+    keyboard1 = telebot.types.ReplyKeyboardMarkup(True)
     now = datetime.datetime.now()
     if message.text.lower() == 'запуск':
         config.chat_id = message.chat.id
